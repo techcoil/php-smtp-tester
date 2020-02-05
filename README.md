@@ -1,4 +1,4 @@
-#php-smtp-tester
+# php-smtp-tester
 
 A php CLI utility for validating SMTP Credentials using `PHPMailer` library
 
