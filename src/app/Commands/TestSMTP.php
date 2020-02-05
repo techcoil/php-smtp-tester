@@ -2,7 +2,6 @@
 
 namespace App\Commands;
 
-use Ahc\Cli\Application as App;
 use Ahc\Cli\Helper\Shell;
 use Ahc\Cli\Input\Command;
 use Ahc\Cli\Input\Reader;
@@ -20,7 +19,7 @@ class TestSMTP extends Command {
     ];
 
     public function __construct() {
-        parent::__construct('test-smtp', 'TestSMTP');
+        parent::__construct('test-smtp-credentials', '');
 
         $this->argument('connectionstring', 'URL Format [[SCHEME://][[USER[:PASSWORD]]@]HOST[:PORT]');
 
@@ -54,7 +53,17 @@ class TestSMTP extends Command {
         return $this;
     }
 
-
+    protected static function getConnectionString($host, $user, $password, $encryption, $port) {
+        $scheme = self::getSmtpSecureValue($encryption);
+        return sprintf('%s//%s%s%s%s:%s',
+            $scheme ? $scheme.':' : '',
+            $user,
+            $user && $password ? ':*****':'',
+            $user ? '@' : '',
+            $host,
+            $port
+        );
+    }
 
     public function execute($connectionstring, $host, $user, $password, $encryption, $port, $from, $to) {
         /**
@@ -94,7 +103,7 @@ class TestSMTP extends Command {
         $mailer->Username = $user;
         $mailer->Password = $password;
         $mailer->Port = $port;
-        $mailer->SMTPSecure = $this->getSmtpSecureValue($encryption);
+        $mailer->SMTPSecure = self::getSmtpSecureValue($encryption);
 
         $mailer->Subject = 'Test Email from PHP SMTP Tester';
         $mailer->Body = '.';
@@ -107,6 +116,9 @@ class TestSMTP extends Command {
 
         try
         {
+
+            $io->writer()->write("Testing: " . self::getConnectionString($host, $user, $password, $encryption, $port), true);
+
             $success = $mailer->send();
             if($success) {
                 $io->writer()->green('Success!');
@@ -154,7 +166,7 @@ class TestSMTP extends Command {
         }
     }
 
-    protected function getSmtpSecureValue($encryption) {
+    protected static function getSmtpSecureValue($encryption) {
         $encryption = strtolower($encryption);
         switch($encryption) {
             case PHPMailer::ENCRYPTION_STARTTLS:

@@ -1,6 +1,7 @@
 {
     "name": "tech-marketing/php-smtp-tester",
     "description": "CLI Utility for testing SMTP credentials",
+    "version": "0.1.0",
     "type": "project",
     "require": {
         "phpmailer/phpmailer": "^6.1",

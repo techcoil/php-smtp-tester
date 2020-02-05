@@ -7,8 +7,25 @@ if (php_sapi_name() !== 'cli') {
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Ahc\Cli\Application('SMTPTester', 'v0.0.1');
-$app->add(new \App\Commands\TestSMTP(), 'test', true);
+$app->add(new \App\Commands\TestSMTP(), '', true);
 
-$app->logo('Tech.marketing');
+$banner = <<<txt
+    _______        _                            _        _   _
+   |__   __|      | |                          | |      | | (_)
+      | | ___  ___| |__    _ __ ___   __ _ _ __| | _____| |_ _ _ __   __ _
+      | |/ _ \/ __| '_ \  | '_ ` _ \ / _` | '__| |/ / _ \ __| | '_ \ / _` |
+      | |  __/ (__| | | |_| | | | | | (_| | |  |   <  __/ |_| | | | | (_| |
+      |_|\___|\___|_| |_(_)_| |_| |_|\__,_|_|  |_|\_\___|\__|_|_| |_|\__, |
+                                                                      __/ |
+                                                                     |___/
 
-$app->handle($_SERVER['argv']);
+txt;
+
+
+$app->logo($banner);
+if($_SERVER['argc'] < 2)
+{
+    $app->handle(array_merge($_SERVER['argv'], ['df']));
+} else {
+    $app->handle($_SERVER['argv']);
+}
