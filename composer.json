@@ -1,0 +1,21 @@
+{
+    "name": "tech-marketing/php-smtp-tester",
+    "description": "CLI Utility for testing SMTP credentials",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^6.1",
+        "adhocore/cli": "^0.8.3"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Yaron Uliel",
+            "email": "yaron@techmarketing.co.il"
+        }
+    ]
+}
