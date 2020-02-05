@@ -7,6 +7,12 @@ cd $DIR
 file_name="php-smtp-tester";
 release_dir="../release";
 
+cd ../
+
+composer dump-autoload
+
+cd $DIR
+
 php -d phar.readonly=0 ./create-phar.php
 
 path="${release_dir}/${file_name}.phar"

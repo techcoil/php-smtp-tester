@@ -25,7 +25,7 @@ txt;
 $app->logo($banner);
 if($_SERVER['argc'] < 2)
 {
-    $app->handle(array_merge($_SERVER['argv'], ['df']));
+    $app->handle(array_merge($_SERVER['argv'], [' ']));
 } else {
     $app->handle($_SERVER['argv']);
 }
