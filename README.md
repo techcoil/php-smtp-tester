@@ -3,7 +3,7 @@
 A php CLI utility for validating SMTP Credentials using `PHPMailer` library
 
 ### Install
-####For Development
+#### For Development
 1. Clone the repository
 2. Run `composer install` to install dependencies`
 3. Execute with `php ./src/index.php --help`
