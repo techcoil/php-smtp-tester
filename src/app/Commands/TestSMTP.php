@@ -22,18 +22,15 @@ class TestSMTP extends Command {
     public function __construct() {
         parent::__construct('test-smtp', 'TestSMTP');
 
-        $this->option('-h --host', 'SMTP Server Host. Supports URL Format [[SCHEME://][[USER[:PASSWORD]]@]HOST[:PORT]', 'strval');
+        $this->argument('connectionstring', 'URL Format [[SCHEME://][[USER[:PASSWORD]]@]HOST[:PORT]');
+
+        $this->option('-h --host', 'SMTP Server Host. Supports ', 'strval');
         $this->option('-u --user', 'SMTP Server User', 'strval');
         $this->option('-p --password', '!!Unsafe!! SMTP Server Password', 'strval');
         $this->option('-e --encryption', sprintf('Encryption Type (%s)', implode('/', array_values(self::$ENCRYPTION_OPTIONS))), 'strval');
         $this->option('-p --port', 'Port number [Default: 25 for None encryption, 587 for TLS/SSL]', 'intval');
         $this->option('-f --from', 'Email address of the sender', 'strval');
         $this->option('-t, --to', 'Recipient for test email', 'strval');
-    }
-
-    protected function getOptions() {
-        $options = $this->allOptions();
-        return $options;
     }
 
     protected function defaults(): Command {
@@ -59,18 +56,18 @@ class TestSMTP extends Command {
 
 
 
-    public function execute($host, $user, $password, $encryption, $port, $from, $to) {
+    public function execute($connectionstring, $host, $user, $password, $encryption, $port, $from, $to) {
         /**
          * @var Interactor | Writer | Reader $io
          */
         $io = $this->app()->io();
 
-        $host = $this->readParam('SMTP Host', $host);
 
-        if($host) {
-            list($host, $user, $password, $encryption, $port) = $this->parseHost($host, $user, $password, $encryption, $port);
+        if($connectionstring) {
+            list($host, $user, $password, $encryption, $port) = $this->parseConnectionString($connectionstring, $host, $user, $password, $encryption, $port);
         }
 
+        $host = $this->readParam('SMTP Host', $host);
         $user = $this->readParam('SMTP User', $user);
         $password = $this->readParam('SMTP Password', $password, NULL, TRUE);
         if(!$encryption) {
@@ -167,15 +164,32 @@ class TestSMTP extends Command {
         return '';
     }
 
-    private function parseHost(string $host, $default_user, $default_password, $default_encryption, $default_port) {
-        $url_info = parse_url($host);
+    private function parseConnectionString(string $connection_string, $default_host, $default_user, $default_password, $default_encryption, $default_port) {
+        if(is_string($connection_string)) {
+
+            if(strpos($connection_string, '//')===false) {
+                $connection_string = '//' . $connection_string;
+            }
+
+            $url_info = parse_url($connection_string);
+        } else {
+            $url_info = null;
+        }
+
+        if(!is_array($url_info)) {
+            return [$default_host, $default_user, $default_password, $default_encryption, $default_port];
+        }
+
+        if(count($url_info) === 1 && array_key_exists('path', $url_info)) {
+            $url_info['host'] = $url_info['path'];
+        }
 
         return [
-          array_key_exists('host',$url_info) ? $url_info['host'] : $host,
-          array_key_exists('user',$url_info) ? $url_info['user'] : $default_user,
-          array_key_exists('pass',$url_info) ? $url_info['pass'] : $default_password,
-          array_key_exists('scheme',$url_info) ? $url_info['scheme'] : $default_encryption,
-          array_key_exists('port',$url_info) ? $url_info['port'] : $default_port,
+            array_key_exists('host',$url_info) ? $url_info['host'] : $default_host,
+            array_key_exists('user',$url_info) ? $url_info['user'] : $default_user,
+            array_key_exists('pass',$url_info) ? $url_info['pass'] : $default_password,
+            array_key_exists('scheme',$url_info) ? $url_info['scheme'] : $default_encryption,
+            array_key_exists('port',$url_info) ? $url_info['port'] : $default_port,
         ];
 
     }

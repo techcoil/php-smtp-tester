@@ -14,6 +14,10 @@ $dir = '../release';
 
 $pharFile = $dir . '/' . $file_name;
 
+if(!is_dir($dir)) {
+    mkdir($dir);
+}
+
 // clean up
 if (file_exists($pharFile)) {
     unlink($pharFile);
