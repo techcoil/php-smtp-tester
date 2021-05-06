@@ -85,7 +85,7 @@ class TestSMTP extends Command {
         }
 
         $port = $this->readParam('Port', $port, $this->getDefaultPort($encryption));
-        $from = $this->readParam('Send test mail FROM', $from, 'test@example.com');
+        $from = $this->readParam('Send test mail FROM', $from, filter_var($user, FILTER_VALIDATE_EMAIL) ? $user : 'test@example.com');
         $to = $this->readParam('Send test mail TO', $to, [$this, 'getDefaultEmail']);
 
 //        $io->write('Host: ' . $host, TRUE);
