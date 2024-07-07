@@ -2,8 +2,7 @@
 // The php.ini setting phar.readonly must be set to 0
 
 
-if (ini_get('phar.readonly'))
-{
+if (ini_get('phar.readonly')) {
     fwrite(STDERR, "PHAR creation failed. php ini setting phar.readonly must bet set to 0\n");
     exit(1);
 }
@@ -16,18 +15,15 @@ $dir = './release';
 
 $pharFile = $dir . '/' . $file_name;
 
-if ( ! is_dir($dir))
-{
+if (!is_dir($dir)) {
     mkdir($dir);
 }
 
 // clean up
-if (file_exists($pharFile))
-{
+if (file_exists($pharFile)) {
     unlink($pharFile);
 }
-if (file_exists($pharFile . '.gz'))
-{
+if (file_exists($pharFile . '.gz')) {
     unlink($pharFile . '.gz');
 }
 
@@ -40,7 +36,7 @@ $default_stub = $p->createDefaultStub('./src/index.php', '/src/index.php');
 
 // creating our library using whole directory
 $p->buildFromIterator(new RecursiveIteratorIterator(new AppFilesIterator('.', '.')), '.');
-$stub = "#!/usr/bin/env php\n{$default_stub}";
+$stub = "#!/usr/bin/env php\n$default_stub";
 
 // plus - compressing it into gzip
 $p->compress(Phar::GZ);
@@ -54,33 +50,35 @@ echo "\n";
 
 
 
-class AppFilesIterator extends RecursiveFilterIterator {
+class AppFilesIterator extends RecursiveFilterIterator
+{
 
-    protected $path;
-    protected static $base_path;
+    protected string $path;
+    protected static string|false $basePath;
 
-    private static $INCLUDE = [
+    private static array $include = [
         'src',
         'vendor',
         'composer.json',
         'composer.lock',
     ];
 
-    private static $EXCLUDE = [
-      '.git*',
-      '*.md',
-      'tests',
-      '*.zsh',
-      'VERSION',
-      'LICENSE',
-      '.travis.yml',
-      'phpunit.xml.dist',
-      '.editor*',
+    private static array $exclude = [
+        '.git*',
+        '*.md',
+        'tests',
+        '*.zsh',
+        'VERSION',
+        'LICENSE',
+        '.travis.yml',
+        'phpunit.xml.dist',
+        '.editor*',
     ];
 
-    public function __construct($path, $base_dir = null) {
-        if($base_dir) {
-            self::$base_path = realpath($base_dir);
+    public function __construct($path, $base_dir = null)
+    {
+        if ($base_dir) {
+            self::$basePath = realpath($base_dir);
         }
 
         $this->path = $path instanceof SplFileInfo ? $path->getPathname() : rtrim($path, '/');
@@ -89,58 +87,49 @@ class AppFilesIterator extends RecursiveFilterIterator {
 
 
 
-    protected function isDot($path) {
-        return preg_match('/^(?:.*\/)?\.{1,2}\/?$/', $path);
+    protected function isDot($path): bool
+    {
+        return preg_match('/^(?:.*\/)?\.{1,2}\/?$/', $path) !== false;
     }
 
-    protected function isIncluded(SplFileInfo $file) {
+    protected function isIncluded(SplFileInfo $file): bool
+    {
         $path = $file->getRealPath();
-        if($this->isDot($path)) {
-            return false;
-        }
+        if (!$this->isDot($path)) {
 
-        foreach(self::$EXCLUDE as $pattern) {
-            if (fnmatch($pattern, $file->getBasename())) {
-               return false;
-            }
-        }
-
-        foreach (self::$INCLUDE as $filter)
-        {
-            $filter_path = realpath(rtrim(self::$base_path . '/' . $filter, '/'));
-
-            if (is_dir($filter_path))
-            {
-                if ($filter_path === $path || strpos($path, $filter_path . '/') === 0)
-                {
-                    return TRUE;
+            foreach (self::$exclude as $pattern) {
+                if (fnmatch($pattern, $file->getBasename())) {
+                    return false;
                 }
             }
 
-            if (is_file($filter_path))
-            {
-                if ($filter_path === $path)
-                {
-                    return TRUE;
+            foreach (self::$include as $filter) {
+                $filter_path = realpath(rtrim(self::$basePath . '/' . $filter, '/'));
+
+                if (
+                    (is_dir($filter_path) && ($filter_path === $path || str_starts_with($path, $filter_path . '/'))) ||
+                    (is_file($filter_path) && $filter_path === $path)
+                ) {
+                    return true;
                 }
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
      * @inheritDoc
      */
-    public function accept() {
+    public function accept(): bool
+    {
         $pathname = $this->current()->getPathname();
-        if($this->isDot($pathname)) {
+        if ($this->isDot($pathname)) {
             return false;
         }
         $in =  $this->isIncluded($this->current()); //strpos($this->current()->getPathname(), 'vendor')!==false; //$this->isIncluded($this->current());
-        if ($in)
-        {
-            echo 'Adding ' . str_replace('/./','/', $this->current()->getPathname()) . "\n";
+        if ($in) {
+            echo 'Adding ' . str_replace('/./', '/', $this->current()->getPathname()) . "\n";
         }
         return $in;
     }
