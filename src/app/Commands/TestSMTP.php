@@ -62,7 +62,7 @@ class TestSMTP extends Command
         return sprintf(
             '%s//%s%s%s%s:%s',
             $scheme ? $scheme . ':' : '',
-            $user,
+            urlencode($user),
             $user && $password ? ':*****' : '',
             $user ? '@' : '',
             $host,
