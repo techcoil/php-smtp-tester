@@ -1,17 +1,17 @@
 {
-  "name": "tech-marketing/php-smtp-tester",
-  "description": "CLI Utility for testing SMTP credentials",
-  "version": "0.2.0",
-  "type": "project",
-  "require": {
-    "php": ">=8.0",
-    "phpmailer/phpmailer": "^6.9.1",
-    "adhocore/cli": "^v1.0.0"
-  },
-  "license": "MIT",
-  "autoload": {
-    "psr-4": {
-      "App\\": "./src/app/"
+    "name": "tech-marketing/php-smtp-tester",
+    "description": "CLI Utility for testing SMTP credentials",
+    "version": "0.2.1",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^6.9.1",
+        "adhocore/cli": "^v1.0.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "./src/app/"
+        }
     }
-  }
 }
